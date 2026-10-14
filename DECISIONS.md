@@ -9,3 +9,9 @@
 4. **Headcount.** Department summary starts from employees, filters by `joined_on <= month end`, and uses a preserving lookup/unwind. Employees with no logs still contribute one headcount row.
 
 5. **100x data.** I would precompute daily facts or materialized monthly summaries and move trend analytics to a reporting collection, while retaining the raw audit records as the source of truth.
+
+6. **Department headcount.** The department summary starts from employees filtered by `joined_on <= month end`; after joining logs, it uses `$addToSet` of employee codes and `$size` so employees with no logs still count exactly once.
+
+7. **Trend gap filling.** The department trend pipeline begins with `$documents` and therefore runs through `db.aggregate(...)`, not a collection aggregate, before using `$densify` and the collection lookups.
+
+8. **Legacy history concurrency.** A missing `history` field is treated as an empty audit trail for the first correction, while the conditional update still prevents two concurrent corrections from silently overwriting each other.

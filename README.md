@@ -16,24 +16,14 @@ uvicorn app.main:app --port 8000
 
 The service creates its indexes at startup. It exposes interactive API documentation at `/docs` and readiness at `/health`.
 
-## Vercel deployment
-
-The repository includes `api/index.py` and `vercel.json` for Vercel's Python runtime. Import the project into Vercel, set these **Production** environment variables, and deploy:
-
-```text
-MONGO_URI=mongodb+srv://<user>:<password>@<cluster>/<database>?retryWrites=true&w=majority
-MONGO_DB=attendance_db
-```
-
-The public docs URL will be `https://<your-vercel-project>.vercel.app/docs`. Do not commit the MongoDB URI.
-
 ## Notes
 
 - All API instants are epoch milliseconds; MongoDB stores BSON datetimes.
 - Attendance analytics are implemented with MongoDB aggregation pipelines.
 - Punch-in, punch-out, and regularization updates are race-safe.
+- The provided `sample_data/` directory is used by `sample_seed.py` for a local smoke test.
 - No `.env`, secrets, Dockerfile, or virtual environment is included.
 
 ## Validation performed
 
-The implementation was syntax-checked and exercised with an in-memory MongoDB substitute for employee creation, duplicate protection, timestamp truncation, punch-in/out rules, regularization history, and 422 validation paths. A MongoDB 6.0+ instance is required for the full aggregation suite, including `$densify` and `$setWindowFields`.
+The implementation was syntax-checked and exercised against an isolated MongoDB 7 database for employee creation, duplicate protection, timestamp truncation, punch-in/out rules, regularization history, indexes, all four analytics endpoints, and all five explain endpoints. A MongoDB 6.0+ instance is required for the aggregation suite, including `$densify` and `$setWindowFields`.
